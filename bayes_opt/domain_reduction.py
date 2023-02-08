@@ -24,11 +24,11 @@ class SequentialDomainReductionTransformer(DomainTransformer):
     """
 
     def __init__(
-        self,
-        gamma_osc: float = 0.7,
-        gamma_pan: float = 1.0,
-        eta: float = 0.9,
-        minimum_window: Optional[Union[List[float], float]] = 0.0
+            self,
+            gamma_osc: float = 0.7,
+            gamma_pan: float = 1.0,
+            eta: float = 0.9,
+            minimum_window: Optional[Union[List[float], float]] = 0.0
     ) -> None:
         self.gamma_osc = gamma_osc
         self.gamma_pan = gamma_pan
@@ -52,7 +52,7 @@ class SequentialDomainReductionTransformer(DomainTransformer):
         self.r = target_space.bounds[:, 1] - target_space.bounds[:, 0]
 
         self.previous_d = 2.0 * \
-            (self.current_optimal - self.previous_optimal) / self.r
+                          (self.current_optimal - self.previous_optimal) / self.r
 
         self.current_d = 2.0 * (self.current_optimal -
                                 self.previous_optimal) / self.r
@@ -64,7 +64,7 @@ class SequentialDomainReductionTransformer(DomainTransformer):
                             self.gamma_osc * (1.0 - self.c_hat))
 
         self.contraction_rate = self.eta + \
-            np.abs(self.current_d) * (self.gamma - self.eta)
+                                np.abs(self.current_d) * (self.gamma - self.eta)
 
         self.r = self.contraction_rate * self.r
 
@@ -89,7 +89,7 @@ class SequentialDomainReductionTransformer(DomainTransformer):
                             self.gamma_osc * (1.0 - self.c_hat))
 
         self.contraction_rate = self.eta + \
-            np.abs(self.current_d) * (self.gamma - self.eta)
+                                np.abs(self.current_d) * (self.gamma - self.eta)
 
         self.r = self.contraction_rate * self.r
 
@@ -127,3 +127,6 @@ class SequentialDomainReductionTransformer(DomainTransformer):
         self._trim(new_bounds, self.original_bounds)
         self.bounds.append(new_bounds)
         return self._create_bounds(target_space.keys, new_bounds)
+
+    def get_previous_optimal(self):
+        return self.previous_optimal

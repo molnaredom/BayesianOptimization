@@ -118,7 +118,8 @@ class BayesianOptimization(Observable):
                  random_state=None,
                  verbose=2,
                  bounds_transformer=None,
-                 allow_duplicate_points=False):
+                 allow_duplicate_points=False,
+                 significant_digits=2):
         self._random_state = ensure_rng(random_state)
         self._allow_duplicate_points = allow_duplicate_points
         self._queue = Queue()
@@ -162,7 +163,7 @@ class BayesianOptimization(Observable):
             except (AttributeError, TypeError):
                 raise TypeError('The transformer must be an instance of '
                                 'DomainTransformer')
-
+        self._significant_digits = significant_digits
         super(BayesianOptimization, self).__init__(events=DEFAULT_EVENTS)
     @property
     def space(self):
@@ -184,10 +185,10 @@ class BayesianOptimization(Observable):
 
     def register(self, params, target, constraint_value=None):
         """Expect observation with known target"""
-        self._space.register(params, target, constraint_value)
+        self._space.register(params, target, self._significant_digits, constraint_value)
         self.dispatch(Events.OPTIMIZATION_STEP)
 
-    def probe(self, params, lazy=True):
+    def probe(self, params, significant_digits, lazy=True):
         """
         Evaluates the function on the given points. Useful to guide the optimizer.
 
@@ -204,7 +205,7 @@ class BayesianOptimization(Observable):
         if lazy:
             self._queue.add(params)
         else:
-            self._space.probe(params)
+            self._space.probe(params, significant_digits)
             self.dispatch(Events.OPTIMIZATION_STEP)
 
     def suggest(self, utility_function):
@@ -322,7 +323,7 @@ class BayesianOptimization(Observable):
                 util.update_params()
                 x_probe = self.suggest(util)
                 iteration += 1
-            self.probe(x_probe, lazy=False)
+            self.probe(x_probe,self._significant_digits, lazy=False)
 
             if self._bounds_transformer and iteration > 0:
                 # The bounds transformer should only modify the bounds after

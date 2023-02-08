@@ -153,7 +153,7 @@ class TargetSpace(object):
                 "expected number of parameters ({}).".format(len(self.keys)))
         return x
 
-    def register(self, params, target, constraint_value=None):
+    def register(self, params, target, significant_digits, constraint_value=None):
         """
         Append a point and its target value to the known data.
 
@@ -195,7 +195,7 @@ class TargetSpace(object):
             else:
                 raise NotUniqueError(f'Data point {x} is not unique. You can set "allow_duplicate_points=True" to '
                                      f'avoid this error')
-
+        target = round(target, significant_digits)
         self._params = np.concatenate([self._params, x.reshape(1, -1)])
         self._target = np.concatenate([self._target, [target]])
 
@@ -212,7 +212,7 @@ class TargetSpace(object):
             self._constraint_values = np.concatenate([self._constraint_values,
                                                       [constraint_value]])
 
-    def probe(self, params):
+    def probe(self, params, significant_digits):
         """
         Evaulates a single point x, to obtain the value y and then records them
         as observations.
@@ -236,11 +236,11 @@ class TargetSpace(object):
         target = self.target_func(**params)
 
         if self._constraint is None:
-            self.register(x, target)
+            self.register(x, target, significant_digits)
             return target
         else:
             constraint_value = self._constraint.eval(**params)
-            self.register(x, target, constraint_value)
+            self.register(x, target,significant_digits, constraint_value)
             return target, constraint_value
 
     def random_sample(self):
@@ -267,7 +267,7 @@ class TargetSpace(object):
 
     def max(self):
         """Get maximum target value found and corresponding parameters.
-        
+
         If there is a constraint present, the maximum value that fulfills the
         constraint is returned."""
         if self._constraint is None:
