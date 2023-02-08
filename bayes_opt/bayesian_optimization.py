@@ -164,7 +164,6 @@ class BayesianOptimization(Observable):
                                 'DomainTransformer')
 
         super(BayesianOptimization, self).__init__(events=DEFAULT_EVENTS)
-
     @property
     def space(self):
         return self._space
@@ -250,6 +249,7 @@ class BayesianOptimization(Observable):
     def maximize(self,
                  init_points=5,
                  n_iter=25,
+                 max_streak_allowed=10,
                  acquisition_function=None,
                  acq=None,
                  kappa=None,
@@ -264,6 +264,9 @@ class BayesianOptimization(Observable):
 
         Parameters
         ----------
+        max_streak_allowed :  int, optional(default=10)
+            Convergence criteria
+
         init_points : int, optional(default=5)
             Number of iterations before the explorations starts the exploration
             for the maximum.
@@ -301,7 +304,18 @@ class BayesianOptimization(Observable):
             util = acquisition_function
 
         iteration = 0
+        streak = 0
+        best_target = None
+
         while not self._queue.empty or iteration < n_iter:
+            if 'target' in self._space.max().keys():
+                if best_target == self._space.max()["target"]:
+                    streak += 1
+                else:
+                    streak = 0
+                    best_target = self._space.max()["target"]
+            if streak == max_streak_allowed:
+                break
             try:
                 x_probe = next(self._queue)
             except StopIteration:
