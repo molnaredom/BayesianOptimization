@@ -186,6 +186,11 @@ class TargetSpace(object):
         >>> len(space)
         1
         """
+        if significant_digits:
+            target = round(target, significant_digits["target"])
+            if "params" in significant_digits:
+                params = [round(param, significant_digits["params"][i]) for i, param in enumerate(params)]
+
         x = self._as_array(params)
         if x in self:
             if self._allow_duplicate_points:
@@ -195,7 +200,7 @@ class TargetSpace(object):
             else:
                 raise NotUniqueError(f'Data point {x} is not unique. You can set "allow_duplicate_points=True" to '
                                      f'avoid this error')
-        target = round(target, significant_digits)
+
         self._params = np.concatenate([self._params, x.reshape(1, -1)])
         self._target = np.concatenate([self._target, [target]])
 
