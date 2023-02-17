@@ -187,7 +187,8 @@ class TargetSpace(object):
         1
         """
         if significant_digits:
-            target = round(target, significant_digits["target"])
+            if "target" in significant_digits:
+                target = round(target, significant_digits["target"])
             if "params" in significant_digits:
                 params = [round(param, significant_digits["params"][i]) for i, param in enumerate(params)]
 
