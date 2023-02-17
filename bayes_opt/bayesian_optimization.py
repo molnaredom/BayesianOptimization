@@ -120,8 +120,6 @@ class BayesianOptimization(Observable):
                  bounds_transformer=None,
                  allow_duplicate_points=False,
                  significant_digits=None):
-        if significant_digits is None:
-            significant_digits = {"target": 20, "params": [20] * len(pbounds)}
         self._random_state = ensure_rng(random_state)
         self._allow_duplicate_points = allow_duplicate_points
         self._queue = Queue()
