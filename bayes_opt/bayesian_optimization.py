@@ -250,7 +250,7 @@ class BayesianOptimization(Observable):
     def maximize(self,
                  init_points=5,
                  n_iter=25,
-                 max_streak_allowed=10,
+                 allowed_max_streak=None,
                  acquisition_function=None,
                  acq=None,
                  kappa=None,
@@ -265,7 +265,7 @@ class BayesianOptimization(Observable):
 
         Parameters
         ----------
-        max_streak_allowed :  int, optional(default=10)
+        allowed_max_streak :  int, optional(default=10)
             Convergence criteria
 
         init_points : int, optional(default=5)
@@ -283,6 +283,8 @@ class BayesianOptimization(Observable):
         All other parameters are unused, and are only available to ensure backwards compatability - these
         will be removed in a future release
         """
+        if not allowed_max_streak:
+            allowed_max_streak = n_iter + init_points
         self._prime_subscriptions()
         self.dispatch(Events.OPTIMIZATION_START)
         self._prime_queue(init_points)
@@ -315,7 +317,7 @@ class BayesianOptimization(Observable):
                 else:
                     streak = 0
                     best_target = self._space.max()["target"]
-            if streak == max_streak_allowed:
+            if streak == allowed_max_streak:
                 break
             try:
                 x_probe = next(self._queue)
