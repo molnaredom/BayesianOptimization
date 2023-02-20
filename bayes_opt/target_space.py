@@ -190,7 +190,10 @@ class TargetSpace(object):
             if "target" in significant_digits:
                 target = round(target, significant_digits["target"])
             if "params" in significant_digits:
-                params = [round(param, significant_digits["params"][i]) for i, param in enumerate(params)]
+                if len(significant_digits["params"]) == len(params):
+                    params = [round(param, significant_digits["params"][i]) for i, param in enumerate(params)]
+                else:
+                    raise ValueError("The number of parameters does not equal in the pbounds and significant_digits")
 
         x = self._as_array(params)
         if x in self:
